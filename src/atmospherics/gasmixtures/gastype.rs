@@ -1,5 +1,5 @@
 /// Struct used to identify and organize different gases by name.
-pub struct BaseGas {
+pub struct GasType {
     /// Short identifier
     pub id: String,
     /// More formal, user-friendly name

@@ -4,8 +4,8 @@ pub mod atmospherics {
     pub mod environmental { }
     /// Gas code--reactions, gases, etc
     pub mod gasmixtures {
-        /// Base gas struct
-        pub mod basegas;
+        /// Gas type struct 
+        pub mod gastype;
         /// Gas mixture struct and functions
         pub mod gasmixture;
         /// Reaction functions and react loop code
