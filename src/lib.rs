@@ -22,6 +22,7 @@ pub mod atmospherics {
 /// Module containing all constant or static values used in the program
 pub mod constants {
     /// Static gas structs - oxygen, nitrogen, etc.
+    /// These should never be instantiated in other files.
     pub mod gases;
     /// References to all react() functions
     pub mod reactions;
