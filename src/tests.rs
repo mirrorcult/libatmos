@@ -2,8 +2,6 @@ use crate::*;
 use constants::*;
 use atmospherics::*;
 use gasmixtures::*;
-use machinery::*;
-use environmental::*;
 
 #[test]
 fn create_gas_mixture() {
