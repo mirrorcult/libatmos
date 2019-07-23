@@ -7,7 +7,7 @@ pub struct GasType {
     /// Amount of energy required to heat a gas up by 1 deg. celsius.
     /// Higher => harder to cool/heat.
     /// Lower => easier to cool/heat
-    pub specific_heat: u32,
+    pub specific_heat: usize,
     /// Multiplier for how much a gas accelerates a fusion reaction
-    pub fusion_power: i32
+    pub fusion_power: isize
 }

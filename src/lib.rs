@@ -29,3 +29,7 @@ pub mod constants {
     /// All constant number values
     pub mod num;
 }
+
+/// Testing module.
+#[cfg(test)]
+mod tests;
