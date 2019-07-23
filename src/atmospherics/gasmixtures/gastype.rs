@@ -1,4 +1,5 @@
 /// Struct used to identify and organize different gases by name.
+#[derive(Eq, PartialEq, Hash)]
 pub struct GasType {
     /// Short identifier
     pub id: &'static str,

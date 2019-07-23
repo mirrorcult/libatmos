@@ -90,18 +90,3 @@ pub static MIASMA: GasType = GasType {
     specific_heat: 20,
     fusion_power: 0
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
