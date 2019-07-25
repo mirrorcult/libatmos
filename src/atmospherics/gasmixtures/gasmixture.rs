@@ -1,4 +1,5 @@
 use crate::atmospherics::gasmixtures::gastype::GasType;
+use crate::constants;
 use crate::errors::AtmosError;
 use std::collections::HashMap;
 
@@ -13,8 +14,8 @@ use std::collections::HashMap;
 /// let gas_vec = vec![&gases::BZ, &gases::MIASMA];
 /// let mole_vec = vec![50.0, 500.5];
 /// let mix = GasMixture::from_vecs(gas_vec, mole_vec, 273.15, 70);
-/// assert_eq!(mix.get_temperature(), 273.15);
-/// assert_eq!(mix.get_volume(), 70);
+/// assert_eq!(mix.temperature, 273.15);
+/// assert_eq!(mix.volume, 70);
 /// ```
 #[derive(PartialEq)]
 pub struct GasMixture<'a> {
@@ -34,9 +35,10 @@ impl<'a> GasMixture<'a> {
     /// ## Example
     /// ```rust
     /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
-    /// let mix = GasMixture::empty(293.15, 1000);
-    /// assert_eq(mix.temperature) 
-    pub fn empty(temperature: f64, volume: usize) -> GasMixture<'a> {
+    /// let mix = GasMixture::from_empty(293.15, 1000);
+    /// assert_eq!(mix.temperature, 293.15);
+    /// ```
+    pub fn from_empty(temperature: f64, volume: usize) -> GasMixture<'a> {
         let gases: HashMap<&'a GasType, f64> = HashMap::new();
         GasMixture {
             gases,
@@ -54,6 +56,7 @@ impl<'a> GasMixture<'a> {
         }
     }
     /// Creates a new instance of a `GasMixture` from two vectors.
+    /// Errors if both vectors are different sizes.
     /// ## Example 
     /// ```rust
     /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
@@ -61,26 +64,31 @@ impl<'a> GasMixture<'a> {
     /// let gas_vec = vec![&gases::BZ, &gases::MIASMA];
     /// let mole_vec = vec![50.0, 500.5];
     /// let mix = GasMixture::from_vecs(gas_vec, mole_vec, 273.15, 70);
-    /// assert_eq(mix.get_moles(&gases::BZ), 50.0);
+    /// assert_eq!(mix.get_moles(&gases::BZ).unwrap(), 50.0);
     /// ```
-    pub fn from_vecs(gas_types: Vec<&'a GasType>, moles: Vec<f64>, temperature: f64, volume: usize) -> GasMixture {
+    pub fn from_vecs(gas_types: Vec<&'a GasType>, moles: Vec<f64>, temperature: f64, volume: usize) -> Result<GasMixture, AtmosError> {
         if gas_types.len() != moles.len() { 
-            panic!() // TODO: actual error handling
+            return Err(AtmosError::VectorLengthMismatch { gas_length: gas_types.len(), mole_length: moles.len() });
         }
         
         // gas_ids contains a vec of references to static gastypes located in constants/gases.rs
         // this zips it into a hashmap with moles, so it looks like
         // [(constants::gases::O2, 5), (constants::gases::N2, 300.7)...]
         let gases = gas_types.into_iter().zip(moles.into_iter()).collect::<HashMap<_, _>>();
-        GasMixture {
+        Ok(GasMixture {
             gases,
             temperature,
             volume
-        }
+        })
     }
     /// Returns true if gas of type `gas_type` exists in the mixture and has >0 moles.. Pretty simple.
     pub fn gas_exists(&self, gas_type: &'a GasType) -> bool {
         self.gases.contains_key(gas_type) && self.get_moles(gas_type).unwrap() > 0.0 // get_moles is guaranteed by contains_key so this is safe 
+    }
+
+    /// Returns true if gases list is completely empty.
+    pub fn is_empty(&self) -> bool {
+        return self.gases.is_empty();
     }
 
     /// Guarantees that a `GasMixture` has a gas of type `gas_id`
@@ -90,11 +98,11 @@ impl<'a> GasMixture<'a> {
     /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
     /// use libatmos::constants::gases;
     /// // Mix contains just O2, at 69.42 mol
-    /// let mix = GasMixture::from_vecs(vec![&gases::O2], vec![69.42], 273.15, 70);
-    /// assert_eq(mix.gas_exists(&gases::N2), false); // Doesn't exist in mix yet
+    /// let mut mix = GasMixture::from_vecs(vec![&gases::O2], vec![69.42], 273.15, 70);
+    /// assert_eq!(mix.gas_exists(&gases::N2), false); // Doesn't exist in mix yet
     /// 
     /// mix.assert_gas(&gases::N2); 
-    /// assert_eq(mix.gas_exists(&gases::N2), true); // Exists now
+    /// assert_eq!(mix.gas_exists(&gases::N2), false); // Even though we asserted, its still only at 0 mols so gas_exists fails
     /// ```
     pub fn assert_gas(&mut self, gas_type: &'a GasType) -> bool {
         if self.gas_exists(gas_type) {
@@ -114,6 +122,7 @@ impl<'a> GasMixture<'a> {
         }
         None
     }
+
     /// Changes the mole count of gas `gas_type` to `moles`. Errors if the gas isn't
     /// in the mixture.
     pub fn change_moles(&mut self, gas_type: &'a GasType, moles: f64) -> Result<(), AtmosError> {
@@ -122,5 +131,23 @@ impl<'a> GasMixture<'a> {
             return Ok(())
         }
         Err(AtmosError::GasNotFound { gas: gas_type })
+    }
+
+    /// Returns total mole count of the gas mixture.
+    pub fn total_moles(&self) -> Result<f64, AtmosError> {
+        if !self.gases.is_empty() {
+            let sum = self.gases.values().fold(0.0, |acc, x| acc + x);
+            return Ok(sum)
+        }
+        Err(AtmosError::GasMixtureEmpty)
+    }
+
+    /// Returns pressure of the mixture in kPa.
+    pub fn return_pressure(&self) -> Result<f64, AtmosError> {
+        if !self.gases.is_empty() {
+            let pressure = (self.total_moles().unwrap() * constants::num::R_IDEAL_GAS_EQUATION * self.temperature) / self.volume as f64; 
+            return Ok(pressure);
+        }
+        Err(AtmosError::GasMixtureEmpty)
     }
 }
