@@ -1,5 +1,7 @@
+use std::fmt;
+
 /// Struct used to identify and organize different gases by name.
-#[derive(Eq, PartialEq, Hash)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub struct GasType {
     /// Short identifier
     pub id: &'static str,
@@ -11,4 +13,10 @@ pub struct GasType {
     pub specific_heat: usize,
     /// Multiplier for how much a gas accelerates a fusion reaction
     pub fusion_power: isize
+}
+
+impl fmt::Display for GasType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} ({})", self.name, self.id) // i.e. "o2 (Oxygen)"
+    }
 }

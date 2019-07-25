@@ -60,3 +60,6 @@ const PARTICLE_CHANCE_CONSTANT:           isize = -20_000_000;
 const FUSION_RAD_MAX:                     usize = 2000;
 const FUSION_RAD_COEFFICIENT:             isize = -1000;
 const FUSION_INSTABILITY_ENDOTHERMALITY:  usize = 2;
+
+// TODO: make sure every const thats actually used in the code we're simulating
+// is here

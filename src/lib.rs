@@ -33,3 +33,6 @@ pub mod constants {
 /// Testing module.
 #[cfg(test)]
 mod tests;
+
+/// Error module.
+mod errors;
