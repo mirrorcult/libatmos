@@ -63,7 +63,7 @@ impl<'a> GasMixture<'a> {
     /// use libatmos::constants::gases;
     /// let gas_vec = vec![&gases::BZ, &gases::MIASMA];
     /// let mole_vec = vec![50.0, 500.5];
-    /// let mix = GasMixture::from_vecs(gas_vec, mole_vec, 273.15, 70);
+    /// let mix = GasMixture::from_vecs(gas_vec, mole_vec, 273.15, 70).unwrap();
     /// assert_eq!(mix.get_moles(&gases::BZ).unwrap(), 50.0);
     /// ```
     pub fn from_vecs(gas_types: Vec<&'a GasType>, moles: Vec<f64>, temperature: f64, volume: usize) -> Result<GasMixture, AtmosError> {
