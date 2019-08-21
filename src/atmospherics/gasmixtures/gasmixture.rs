@@ -74,7 +74,9 @@ impl<'a> GasMixture<'a> {
         // gas_ids contains a vec of references to static gastypes located in constants/gases.rs
         // this zips it into a hashmap with moles, so it looks like
         // [(constants::gases::O2, 5), (constants::gases::N2, 300.7)...]
-        let gases = gas_types.into_iter().zip(moles.into_iter()).collect::<HashMap<_, _>>();
+        let gases = gas_types.into_iter()
+                             .zip(moles.into_iter())
+                             .collect::<HashMap<_, _>>();
         Ok(GasMixture {
             gases,
             temperature,
@@ -91,8 +93,8 @@ impl<'a> GasMixture<'a> {
         return self.gases.is_empty();
     }
 
-    /// Guarantees that a `GasMixture` has a gas of type `gas_id`
-    /// Returns `true` if the gas already existed before calling `assert_gas()`
+    /// Guarantees that a `GasMixture` has a gas of type `gas_id`.
+    /// Returns `true` if the gas already existed before calling `assert_gas()`.
     /// ## Usage
     /// ```rust
     /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
@@ -127,7 +129,8 @@ impl<'a> GasMixture<'a> {
     /// in the mixture.
     pub fn change_moles(&mut self, gas_type: &'a GasType, moles: f64) -> Result<(), AtmosError> {
         if self.gas_exists(gas_type) {
-            self.gases.entry(gas_type).and_modify(|v| { *v = moles });
+            self.gases.entry(gas_type)
+                      .and_modify(|v| { *v = moles });
             return Ok(())
         }
         Err(AtmosError::GasNotFound { gas: gas_type })
@@ -135,8 +138,9 @@ impl<'a> GasMixture<'a> {
 
     /// Returns total mole count of the gas mixture.
     pub fn total_moles(&self) -> Result<f64, AtmosError> {
-        if !self.gases.is_empty() {
-            let sum = self.gases.values().fold(0.0, |acc, x| acc + x);
+        if !self.is_empty() {
+            let sum = self.gases.values()
+                                .fold(0.0, |acc, x| acc + x);
             return Ok(sum)
         }
         Err(AtmosError::GasMixtureEmpty)
@@ -144,9 +148,28 @@ impl<'a> GasMixture<'a> {
 
     /// Returns pressure of the mixture in kPa.
     pub fn return_pressure(&self) -> Result<f64, AtmosError> {
-        if !self.gases.is_empty() {
+        if !self.is_empty() {
             let pressure = (self.total_moles().unwrap() * constants::num::R_IDEAL_GAS_EQUATION * self.temperature) / self.volume as f64; 
             return Ok(pressure);
+        }
+        Err(AtmosError::GasMixtureEmpty)
+    }
+
+    /// Returns heat capacity of the mixture.
+    pub fn heat_capacity(&self) -> Result<f64, AtmosError> {
+        if !self.is_empty() {
+            let sum = self.gases.iter()
+                                .fold(0.0, |acc, (gastype, moles)| acc + ((gastype.specific_heat as f64) * moles));
+            return Ok(sum);
+        }
+        Err(AtmosError::GasMixtureEmpty)
+    }
+
+    /// Returns thermal energy of the mixture
+    pub fn thermal_energy(&self) -> Result<f64, AtmosError> {
+        if !self.is_empty() {
+            let thermal_energy = self.heat_capacity().unwrap() * self.temperature;
+            return Ok(thermal_energy);
         }
         Err(AtmosError::GasMixtureEmpty)
     }
