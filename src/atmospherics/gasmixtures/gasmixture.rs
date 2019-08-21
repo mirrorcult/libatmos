@@ -118,7 +118,7 @@ impl<'a> GasMixture<'a> {
     /// Returns `Some(mole count)` of GasType if it exists, `None` otherwise.
     pub fn get_moles(&self, gas_type: &'a GasType) -> Option<f64> {
         if self.gas_exists(gas_type) {
-            return Some(self.gases.get(gas_type)?.clone()); // not sure why get() returns a reference when it could just implicit copy but..
+            return Some(self.gases.get(gas_type)?.clone()); // not sure why get() returns a reference.. to a double.. when it could just clone but..
         }
         None
     }
