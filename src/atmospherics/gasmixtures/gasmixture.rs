@@ -7,7 +7,7 @@ use std::collections::HashMap;
 /// GasMixture struct. "Unit" type for pretty much everything
 /// atmospheric in the game. Holds a list of gases, their amounts
 /// (in mols) and the temperature of the mixture for various calculations.
-/// ## Example 
+/// ## Example
 /// ```rust
 /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
 /// use libatmos::constants::gases;
@@ -39,6 +39,7 @@ impl<'a> GasMixture<'a> {
     /// assert_eq!(mix.temperature, 293.15);
     /// ```
     pub fn from_empty(temperature: f64, volume: usize) -> GasMixture<'a> {
+        info!("New gas mixture created using from_empty");
         let gases: HashMap<&'a GasType, f64> = HashMap::new();
         GasMixture {
             gases,
@@ -46,10 +47,11 @@ impl<'a> GasMixture<'a> {
             volume
         }
     }
-    /// Creates a new instance of a `GasMixture` normally. 
+    /// Creates a new instance of a `GasMixture` normally.
     /// `GasMixure::empty()` and `GasMixture::from_vecs` are preferred heavily.
     pub fn new(gases: HashMap<&'a GasType, f64>, temperature: f64, volume: usize) -> GasMixture {
-        GasMixture { 
+        info!("New gas mixture created using new");
+        GasMixture {
             gases,
             temperature,
             volume
@@ -57,7 +59,7 @@ impl<'a> GasMixture<'a> {
     }
     /// Creates a new instance of a `GasMixture` from two vectors.
     /// Errors if both vectors are different sizes.
-    /// ## Example 
+    /// ## Example
     /// ```rust
     /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
     /// use libatmos::constants::gases;
@@ -67,13 +69,14 @@ impl<'a> GasMixture<'a> {
     /// assert_eq!(mix.get_moles(&gases::BZ).unwrap(), 50.0);
     /// ```
     pub fn from_vecs(gas_types: Vec<&'a GasType>, moles: Vec<f64>, temperature: f64, volume: usize) -> Result<GasMixture, AtmosError> {
-        if gas_types.len() != moles.len() { 
+        if gas_types.len() != moles.len() {
             return Err(AtmosError::VectorLengthMismatch { gas_length: gas_types.len(), mole_length: moles.len() });
         }
-        
+
         // gas_ids contains a vec of references to static gastypes located in constants/gases.rs
         // this zips it into a hashmap with moles, so it looks like
         // [(constants::gases::O2, 5), (constants::gases::N2, 300.7)...]
+        info!("New gas mixture created using from_vecs; temperature {} and volume {}", temperature, volume);
         let gases = gas_types.into_iter().zip(moles.into_iter()).collect::<HashMap<_, _>>();
         Ok(GasMixture {
             gases,
@@ -83,7 +86,7 @@ impl<'a> GasMixture<'a> {
     }
     /// Returns true if gas of type `gas_type` exists in the mixture and has >0 moles.. Pretty simple.
     pub fn gas_exists(&self, gas_type: &'a GasType) -> bool {
-        self.gases.contains_key(gas_type) && self.get_moles(gas_type).unwrap() > 0.0 // get_moles is guaranteed by contains_key so this is safe 
+        self.gases.contains_key(gas_type) && self.get_moles(gas_type).unwrap() > 0.0 // get_moles is guaranteed by contains_key so this is safe
     }
 
     /// Returns true if gases list is completely empty.
@@ -100,16 +103,16 @@ impl<'a> GasMixture<'a> {
     /// // Mix contains just O2, at 69.42 mol
     /// let mut mix = GasMixture::from_vecs(vec![&gases::O2], vec![69.42], 273.15, 70);
     /// assert_eq!(mix.gas_exists(&gases::N2), false); // Doesn't exist in mix yet
-    /// 
-    /// mix.assert_gas(&gases::N2); 
+    ///
+    /// mix.assert_gas(&gases::N2);
     /// assert_eq!(mix.gas_exists(&gases::N2), false); // Even though we asserted, its still only at 0 mols so gas_exists fails
     /// ```
     pub fn assert_gas(&mut self, gas_type: &'a GasType) -> bool {
         if self.gas_exists(gas_type) {
             return true
-        } 
+        }
         self.gases.insert(gas_type, 0.0);
-        false 
+        false
     }
 
     // add_gas would be here, but its functionally useless in this library
@@ -145,7 +148,7 @@ impl<'a> GasMixture<'a> {
     /// Returns pressure of the mixture in kPa.
     pub fn return_pressure(&self) -> Result<f64, AtmosError> {
         if !self.gases.is_empty() {
-            let pressure = (self.total_moles().unwrap() * constants::num::R_IDEAL_GAS_EQUATION * self.temperature) / self.volume as f64; 
+            let pressure = (self.total_moles().unwrap() * constants::num::R_IDEAL_GAS_EQUATION * self.temperature) / self.volume as f64;
             return Ok(pressure);
         }
         Err(AtmosError::GasMixtureEmpty)

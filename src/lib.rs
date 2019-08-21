@@ -1,10 +1,16 @@
+extern crate snafu;
+extern crate fern;
+#[macro_use]
+extern crate log;
+extern crate chrono;
+
 /// Module containing all actual atmos code
 pub mod atmospherics {
     /// Environmental atmos-related stuff, LINDA, hotspots, etc
     pub mod environmental { }
     /// Gas code--reactions, gases, etc
     pub mod gasmixtures {
-        /// Gas type struct 
+        /// Gas type struct
         pub mod gastype;
         /// Gas mixture struct and functions
         pub mod gasmixture;
@@ -36,3 +42,6 @@ mod tests;
 
 /// Error module.
 mod errors;
+
+/// Logging module using fern.
+mod logging;

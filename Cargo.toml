@@ -5,4 +5,7 @@ authors = ["cyclowns <cyclowns@protonmail.ch>"]
 edition = "2018"
 
 [dependencies]
-snafu = "0.4.3"
+snafu = "0.4.4"
+log = "0.4"
+fern = "0.5"
+chrono = "0.4.7"
