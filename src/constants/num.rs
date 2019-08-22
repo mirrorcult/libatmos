@@ -13,7 +13,8 @@ pub const TANK_FRAGMENT_PRESSURE:             f64   = 40.0 * ONE_ATMOSPHERE;
 pub const TANK_FRAGMENT_SCALE:                f64   = 6.0  * ONE_ATMOSPHERE;
 pub const TANK_MAX_RELEASE_PRESSURE:          f64   = 3.0  * ONE_ATMOSPHERE;
 
-// 'Defines'/pub constants used in gas reactions 
+// 'Defines'/pub constants used in gas reactions
+pub const MINIMUM_TEMP_DELTA_TO_CONSIDER:     f64   = 0.5;
 pub const OXYGEN_BURN_RATE_BASE:              f64   = 1.4;
 pub const PLASMA_BURN_RATE_DELTA:             usize = 9;
 pub const PLASMA_MINIMUM_OXYGEN_NEEDED:       usize = 2;
@@ -35,7 +36,7 @@ pub const MINIMUM_TRIT_OXYBURN_ENERGY:        usize = 2_000_000;
 pub const SUPER_SATURATION_THRESHOLD:         usize = 96;
 pub const STIMULUM_HEAT_SCALE:                usize = 100_000;
 pub const STIMULUM_FIRST_RISE:                f64   = 0.65;
-pub const STIMULUM_FIRST_DROP:                f64   = 0.065; 
+pub const STIMULUM_FIRST_DROP:                f64   = 0.065;
 pub const STIMULUM_SECOND_RISE:               f64   = 0.0009;
 pub const STIMULUM_ABSOLUTE_DROP:             f64   = 0.00000335;
 pub const REACTION_OPPRESSION_THRESHOLD:      usize = 5;
