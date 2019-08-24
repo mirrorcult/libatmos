@@ -3,6 +3,7 @@ use crate::constants::*;
 use crate::errors::AtmosError;
 use std::collections::HashMap;
 use std::fmt;
+use std::cmp;
 
 
 /// GasMixture struct. "Unit" type for pretty much everything
@@ -198,6 +199,27 @@ impl<'a> GasMixture<'a> {
         }
 
         Ok(())
+    }
+
+    /// Removes a quantity of gas in `mol` from the gas mixture.
+    ///
+    /// ## Usage
+    pub fn remove(&self, mut amount: f64) -> Result<GasMixture, AtmosError> {
+        let total_moles = self.total_moles().unwrap();
+        if amount > total_moles {
+            amount = total_moles;
+        }
+        if amount < 0.0 {
+            return Err(AtmosError::LessThanZero { value: amount });
+        }
+
+        let mut removed = GasMixture::from_empty(self.temperature, self.volume);
+        for (gastype, moles) in self.gases.iter() {
+            removed.assert_gas(gastype);
+            removed.change_moles(gastype, (moles / total_moles) * amount).unwrap(); // percentage
+            self.change_moles(gastype, moles - removed.get_moles(gastype).unwrap()).unwrap();
+        }
+        Ok(removed)
     }
 }
 
