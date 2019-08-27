@@ -204,7 +204,7 @@ impl<'a> GasMixture<'a> {
     /// Removes a quantity of gas in `mol` from the gas mixture.
     ///
     /// ## Usage
-    pub fn remove(&self, mut amount: f64) -> Result<GasMixture, AtmosError> {
+    pub fn remove(&mut self, mut amount: f64) -> Result<GasMixture, AtmosError> {
         let total_moles = self.total_moles().unwrap();
         if amount > total_moles {
             amount = total_moles;
@@ -214,7 +214,7 @@ impl<'a> GasMixture<'a> {
         }
 
         let mut removed = GasMixture::from_empty(self.temperature, self.volume);
-        for (gastype, moles) in self.gases.iter() {
+        for (gastype, moles) in self.gases.clone().iter() { // clone is necessary to avoid mutability issues
             removed.assert_gas(gastype);
             removed.change_moles(gastype, (moles / total_moles) * amount).unwrap(); // percentage
             self.change_moles(gastype, moles - removed.get_moles(gastype).unwrap()).unwrap();
