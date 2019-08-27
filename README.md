@@ -8,6 +8,12 @@ I'm planning on writing a GUI cross-platform desktop frontend and a WASM (web-ba
 
 Also, this could potentially be used in a TG-like SS13 remake if someone wrote one in Rust, but I doubt it.
 
+## Contribution
+
+> please contribute I would greatly appreciate it
+
+See issues tab for more details. I try and add everything there that I'd like to work on in the near future.
+
 ## License
 
 Licensed under `GNU AGPLv3`.  
