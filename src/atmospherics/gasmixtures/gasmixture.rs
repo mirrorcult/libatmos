@@ -221,6 +221,45 @@ impl<'a> GasMixture<'a> {
         }
         Ok(removed)
     }
+
+    /// Removes a percentage / ratio of gas from the gas mixture, as opposed to `mol` count directly.
+    ///
+    /// ## Usage
+    pub fn remove_ratio(&mut self, mut ratio: f64) -> Result<GasMixture, AtmosError> {
+        if ratio <= 0.0 {
+            return Err(AtmosError::LessThanZero { value: ratio });
+        }
+        if ratio > 1.0 {
+            ratio = 1.0;
+        }
+
+        let mut removed = GasMixture::from_empty(self.temperature, self.volume);
+        for (gastype, moles) in self.gases.clone().iter() {
+            removed.assert_gas(gastype);
+            removed.change_moles(gastype, moles * ratio).unwrap();
+            self.change_moles(gastype, moles - (moles * ratio)).unwrap();
+        }
+        Ok(removed)
+    }
+
+    // Not implementing these yet because they are rarely used except in environmental
+    // atmos + machinery and I'm not coding that yet
+    // TODO: Implement share() / temperature_share()
+
+    /// It shares!
+    /// ## Usage
+    pub fn share(&mut self, sharer: GasMixture, atmos_adjacent_turfs: f64) {
+        unimplemented!();
+    }
+
+    /// It shares (temperature)!
+    /// ## Usage
+    pub fn temperature_share(&self) {
+        unimplemented!();
+    }
+
+    // TODO: Implement compare()?
+    // TODO: Implement react()
 }
 
 impl<'a> fmt::Display for GasMixture<'a> {
