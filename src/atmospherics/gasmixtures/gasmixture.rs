@@ -41,6 +41,7 @@ impl<'a> GasMixture<'a> {
     /// assert_eq!(mix.temperature, 293.15);
     /// ```
     pub fn from_empty(temperature: f64, volume: usize) -> GasMixture<'a> {
+        info!("New gas mixture created using from_empty");
         let gases: HashMap<&'a GasType, f64> = HashMap::new();
         GasMixture {
             gases,
@@ -51,6 +52,7 @@ impl<'a> GasMixture<'a> {
     /// Creates a new instance of a `GasMixture` normally.
     /// `GasMixure::empty()` and `GasMixture::from_vecs` are preferred heavily.
     pub fn new(gases: HashMap<&'a GasType, f64>, temperature: f64, volume: usize) -> GasMixture {
+        info!("New gas mixture created using new");
         GasMixture {
             gases,
             temperature,
@@ -79,6 +81,8 @@ impl<'a> GasMixture<'a> {
         let gases = gas_types.into_iter()
                              .zip(moles.into_iter())
                              .collect::<HashMap<_, _>>();
+        info!("New gas mixture created using from_vecs; temperature {} and volume {}", temperature, volume);
+        let gases = gas_types.into_iter().zip(moles.into_iter()).collect::<HashMap<_, _>>();
         Ok(GasMixture {
             gases,
             temperature,
@@ -156,7 +160,7 @@ impl<'a> GasMixture<'a> {
         }
         Err(AtmosError::GasMixtureEmpty)
     }
-
+  
     /// Returns heat capacity of the mixture.
     pub fn heat_capacity(&self) -> Result<f64, AtmosError> {
         if !self.is_empty() {
