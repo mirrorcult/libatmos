@@ -162,16 +162,34 @@ impl<'a> GasMixture<'a> {
     }
   
     /// Returns heat capacity of the mixture.
+    ///
+    /// ## Usage
+    /// ```rust
+    /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
+    /// use libatmos::constants::gases;
+    /// // 50 mol O2, 50 mol N2, 100 K at 100 L
+    /// let mut mix = GasMixture::from_vecs(vec![&gases::O2, &gases::N2], vec![50, 50], 100, 100);
+    /// assert_eq!(mix.heat_capacity().unwrap(), 2000) // mix heatcap = (50 * 20) * 2 = 2000
+    /// ```
     pub fn heat_capacity(&self) -> Result<f64, AtmosError> {
         if !self.is_empty() {
             let sum = self.gases.iter()
-                                .fold(0.0, |acc, (gastype, moles)| acc + ((gastype.specific_heat as f64) * moles));
+                                .fold(0.0, |acc, (gastype, moles)| acc + ((gastype.specific_heat as f64) * moles)); // big boy
             return Ok(sum);
         }
         Err(AtmosError::GasMixtureEmpty)
     }
 
     /// Returns thermal energy of the mixture
+    ///
+    /// ## Usage
+    /// ```rust
+    /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
+    /// use libatmos::constants::gases;
+    /// // 50 mol O2, 50 mol N2, 100 K at 100 L
+    /// let mut mix = GasMixture::from_vecs(vec![&gases::O2, &gases::N2], vec![50, 50], 100, 100);
+    /// assert_eq!(mix.thermal_energy().unwrap(), 200_000) // mix thermal energy = 2000 (heatcap) * 100
+    /// ```
     pub fn thermal_energy(&self) -> Result<f64, AtmosError> {
         if !self.is_empty() {
             let thermal_energy = self.heat_capacity().unwrap() * self.temperature;
