@@ -41,7 +41,23 @@ pub mod constants {
 
 /// Testing module.
 #[cfg(test)]
-mod tests;
+mod tests {
+    /// ENVIRONMENT!
+    mod environmental {
+
+    }
+    /// Testing for gas-related stuff.
+    mod gasmixtures {
+        /// Gas-mixture methods
+        mod gasmixture;
+        /// Reaction methods
+        mod reactions;
+    }
+    /// MACHINES!
+    mod machinery {
+
+    }
+}
 
 /// Error module.
 mod errors;

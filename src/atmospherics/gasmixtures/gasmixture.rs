@@ -3,8 +3,6 @@ use crate::constants::*;
 use crate::errors::AtmosError;
 use std::collections::HashMap;
 use std::fmt;
-use std::cmp;
-
 
 /// GasMixture struct. "Unit" type for pretty much everything
 /// atmospheric in the game. Holds a list of gases, their amounts
@@ -49,6 +47,7 @@ impl<'a> GasMixture<'a> {
             volume
         }
     }
+
     /// Creates a new instance of a `GasMixture` normally.
     /// `GasMixure::empty()` and `GasMixture::from_vecs` are preferred heavily.
     pub fn new(gases: HashMap<&'a GasType, f64>, temperature: f64, volume: usize) -> GasMixture {
@@ -59,6 +58,7 @@ impl<'a> GasMixture<'a> {
             volume
         }
     }
+
     /// Creates a new instance of a `GasMixture` from two vectors.
     /// Errors if both vectors are different sizes.
     /// ## Example
@@ -88,19 +88,31 @@ impl<'a> GasMixture<'a> {
             volume
         })
     }
+
     /// Returns true if gas of type `gas_type` exists in the mixture and has >0 moles.. Pretty simple.
+    /// ## Example
+    /// ```rust
+    ///
+    /// ```
     pub fn gas_exists(&self, gas_type: &'a GasType) -> bool {
         self.gases.contains_key(gas_type) && self.get_moles(gas_type).unwrap() > 0.0 // get_moles is guaranteed by contains_key so this is safe
     }
 
     /// Returns true if gases list is completely empty.
+    /// ## Example
+    /// ```rust
+    /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
+    /// let mut mix = GasMixture::from_empty(100.0, 100.0); // well, duh, now its empty
+    ///
+    /// assert_eq!(mix.is_empty(), true);
+    /// ```
     pub fn is_empty(&self) -> bool {
         return self.gases.is_empty();
     }
 
     /// Guarantees that a `GasMixture` has a gas of type `gas_id`.
     /// Returns `true` if the gas already existed before calling `assert_gas()`.
-    /// ## Usage
+    /// ## Example
     /// ```rust
     /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
     /// use libatmos::constants::gases;
@@ -122,7 +134,18 @@ impl<'a> GasMixture<'a> {
     // add_gas would be here, but its functionally useless in this library
     // as its really only in SS13 for performance reasons
 
+    // TODO: Maybe figure out a more idiomatic way to do get_moles and change_moles
+
     /// Returns `Some(mole count)` of GasType if it exists, `None` otherwise.
+    /// ## Example
+    /// ```rust
+    /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
+    /// use libatmos::constants::gases;
+    /// // 50 mol O2, 50 mol N2, 100 K at 100 L
+    /// let mut mix = GasMixture::from_vecs(vec![&gases::O2, &gases::N2], vec![50.0, 50.0], 100.0, 100.0)   ///
+    ///
+    /// assert_eq!(mix.get_moles(&gases::O2).unwrap(), 50.0);
+    /// ```
     pub fn get_moles(&self, gas_type: &'a GasType) -> Option<f64> {
         if self.gas_exists(gas_type) {
             return Some(self.gases.get(gas_type)?.clone()); // not sure why get() returns a reference.. to a double.. when it could just clone but..
@@ -162,13 +185,13 @@ impl<'a> GasMixture<'a> {
 
     /// Returns heat capacity of the mixture.
     ///
-    /// ## Usage
+    /// ## Example
     /// ```rust
     /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
     /// use libatmos::constants::gases;
     /// // 50 mol O2, 50 mol N2, 100 K at 100 L
-    /// let mut mix = GasMixture::from_vecs(vec![&gases::O2, &gases::N2], vec![50, 50], 100, 100);
-    /// assert_eq!(mix.heat_capacity().unwrap(), 2000) // mix heatcap = (50 * 20) * 2 = 2000
+    /// let mut mix = GasMixture::from_vecs(vec![&gases::O2, &gases::N2], vec![50.0, 50.0], 100.0, 100.0);
+    /// assert_eq!(mix.heat_capacity().unwrap(), 2000.0) // mix heatcap = (50 * 20) * 2 = 2000
     /// ```
     pub fn heat_capacity(&self) -> Result<f64, AtmosError> {
         if !self.is_empty() {
@@ -181,13 +204,13 @@ impl<'a> GasMixture<'a> {
 
     /// Returns thermal energy of the mixture
     ///
-    /// ## Usage
+    /// ## Example
     /// ```rust
     /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
     /// use libatmos::constants::gases;
     /// // 50 mol O2, 50 mol N2, 100 K at 100 L
-    /// let mut mix = GasMixture::from_vecs(vec![&gases::O2, &gases::N2], vec![50, 50], 100, 100);
-    /// assert_eq!(mix.thermal_energy().unwrap(), 200_000) // mix thermal energy = 2000 (heatcap) * 100
+    /// let mut mix = GasMixture::from_vecs(vec![&gases::O2, &gases::N2], vec![50.0, 50.0], 100.0, 100.0);
+    /// assert_eq!(mix.thermal_energy().unwrap(), 200_000.0) // mix thermal energy = 2000 (heatcap) * 100
     /// ```
     pub fn thermal_energy(&self) -> Result<f64, AtmosError> {
         if !self.is_empty() {
@@ -200,7 +223,7 @@ impl<'a> GasMixture<'a> {
     /// Merges two gas mixtures into self, adding together their gases mole counts and
     /// equalizing temperatures according to heat capacity.
     ///
-    /// ## Usage
+    /// ## Example
     pub fn merge(&mut self, giver: GasMixture<'a>) -> Result<(), AtmosError> {
         if self.is_empty() || giver.is_empty() {
             return Err(AtmosError::GasMixtureEmpty);
@@ -224,7 +247,7 @@ impl<'a> GasMixture<'a> {
 
     /// Removes a quantity of gas in `mol` from the gas mixture.
     ///
-    /// ## Usage
+    /// ## Example
     pub fn remove(&mut self, mut amount: f64) -> Result<GasMixture, AtmosError> {
         let total_moles = self.total_moles().unwrap();
         if amount > total_moles {
@@ -245,7 +268,7 @@ impl<'a> GasMixture<'a> {
 
     /// Removes a percentage / ratio of gas from the gas mixture, as opposed to `mol` count directly.
     ///
-    /// ## Usage
+    /// ## Example
     pub fn remove_ratio(&mut self, mut ratio: f64) -> Result<GasMixture, AtmosError> {
         if ratio <= 0.0 {
             return Err(AtmosError::LessThanZero { value: ratio });
@@ -268,13 +291,13 @@ impl<'a> GasMixture<'a> {
     // TODO: Implement share() / temperature_share()
 
     /// It shares!
-    /// ## Usage
-    pub fn share(&mut self, sharer: GasMixture, atmos_adjacent_turfs: f64) {
+    /// ## Example
+    pub fn share(&mut self, _sharer: GasMixture, _atmos_adjacent_turfs: f64) {
         unimplemented!();
     }
 
     /// It shares (temperature)!
-    /// ## Usage
+    /// ## Example
     pub fn temperature_share(&self) {
         unimplemented!();
     }
