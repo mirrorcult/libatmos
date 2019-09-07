@@ -82,7 +82,6 @@ impl<'a> GasMixture<'a> {
                              .zip(moles.into_iter())
                              .collect::<HashMap<_, _>>();
         info!("New gas mixture created using from_vecs; temperature {} and volume {}", temperature, volume);
-        let gases = gas_types.into_iter().zip(moles.into_iter()).collect::<HashMap<_, _>>();
         Ok(GasMixture {
             gases,
             temperature,
@@ -160,7 +159,7 @@ impl<'a> GasMixture<'a> {
         }
         Err(AtmosError::GasMixtureEmpty)
     }
-  
+
     /// Returns heat capacity of the mixture.
     pub fn heat_capacity(&self) -> Result<f64, AtmosError> {
         if !self.is_empty() {

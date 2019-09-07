@@ -4,6 +4,9 @@ extern crate fern;
 extern crate log;
 extern crate chrono;
 
+#[allow(unused_imports)] // not actually unused, but it says it is..
+use log::{info};
+
 /// Module containing all actual atmos code
 pub mod atmospherics {
     /// Environmental atmos-related stuff, LINDA, hotspots, etc
