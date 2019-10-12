@@ -224,6 +224,9 @@ impl<'a> GasMixture<'a> {
     /// equalizing temperatures according to heat capacity.
     ///
     /// ## Example
+    /// ```rust
+    /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
+    /// ```
     pub fn merge(&mut self, giver: GasMixture<'a>) -> Result<(), AtmosError> {
         if self.is_empty() || giver.is_empty() {
             return Err(AtmosError::GasMixtureEmpty);
@@ -297,6 +300,7 @@ impl<'a> GasMixture<'a> {
     }
 
     /// It shares (temperature)!
+    ///
     /// ## Example
     pub fn temperature_share(&self) {
         unimplemented!();

@@ -1,8 +1,7 @@
-use crate::*;
-use constants::*;
-use atmospherics::*;
-use gasmixtures::*;
-use gasmixture::GasMixture;
+use crate::{
+    constants::*,
+    atmospherics::gasmixtures::*,
+};
 
 #[test]
 fn from_vecs() {
