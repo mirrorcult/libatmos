@@ -1,4 +1,4 @@
-use crate::atmospherics::gasmixtures::gastype::GasType;
+use crate::atmospherics::gases::GasType;
 
 pub static O2: GasType = GasType {
     id: "o2",

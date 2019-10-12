@@ -1,4 +1,4 @@
-use crate::atmospherics::gasmixtures::gastype::GasType;
+use crate::atmospherics::gases::GasType;
 use snafu::Snafu;
 
 #[derive(Debug, Snafu)]

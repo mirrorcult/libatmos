@@ -1,6 +1,6 @@
 use crate::{
     constants::*,
-    atmospherics::gasmixtures::*,
+    atmospherics::gases::*,
 };
 
 #[test]
@@ -65,4 +65,15 @@ fn thermal_energy() {
     let mix = GasMixture::from_vecs(gas_vec, mole_vec, 100.0, 70).unwrap();
 
     assert_eq!(mix.thermal_energy().unwrap(), 300_000.0)
+}
+
+#[test]
+fn merge() {
+    let gas_vec = vec![&gases::BZ, &gases::MIASMA];
+    let mole_vec = vec![50.0, 100.0];
+    let giver = GasMixture::from_vecs(gas_vec, mole_vec, 100.0, 70).unwrap();
+    let mut taker = giver.clone();
+
+    taker.merge(giver).unwrap();
+    assert_eq!(taker.get_moles(&gases::O2).unwrap(), 300.0); // added up
 }

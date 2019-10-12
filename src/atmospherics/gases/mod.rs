@@ -1,5 +1,6 @@
 pub use self::{
     gasmixture::GasMixture,
+    gastype::GasType,
 };
 
 /// gas type struct

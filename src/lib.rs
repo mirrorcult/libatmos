@@ -12,7 +12,7 @@ pub mod atmospherics {
     /// Environmental atmos-related stuff, LINDA, hotspots, etc
     pub mod environmental {}
     /// Gas code--reactions, gases, etc
-    pub mod gasmixtures;
+    pub mod gases;
     /// Machinery code--air pumps, pipes, canisters, etc
     pub mod machinery;
 }
@@ -23,20 +23,16 @@ pub mod constants;
 #[cfg(test)]
 mod tests {
     /// ENVIRONMENT!
-    mod environmental {
-
-    }
+    mod environmental {}
     /// Testing for gas-related stuff.
-    mod gasmixtures {
+    mod gases {
         /// Gas-mixture methods
         mod gasmixture;
         /// Reaction methods
         mod reactions;
     }
     /// MACHINES!
-    mod machinery {
-
-    }
+    mod machinery {}
 }
 
 /// Error module.

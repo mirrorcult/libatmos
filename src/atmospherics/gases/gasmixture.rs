@@ -1,4 +1,4 @@
-use crate::atmospherics::gasmixtures::gastype::GasType;
+use crate::atmospherics::gases::GasType;
 use crate::constants::*;
 use crate::errors::AtmosError;
 use std::collections::HashMap;
@@ -9,7 +9,7 @@ use std::fmt;
 /// (in mols) and the temperature of the mixture for various calculations.
 /// ## Example
 /// ```rust
-/// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
+/// use libatmos::atmospherics::gases::GasMixture;
 /// use libatmos::constants::gases;
 /// let gas_vec = vec![&gases::BZ, &gases::MIASMA];
 /// let mole_vec = vec![50.0, 500.5];
@@ -17,7 +17,7 @@ use std::fmt;
 /// assert_eq!(mix.temperature, 273.15);
 /// assert_eq!(mix.volume, 70);
 /// ```
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct GasMixture<'a> {
     /// HashMap of a reference to a static GasType (i.e. O2, plasma)
     /// and their mole count as an f64.
@@ -34,7 +34,7 @@ impl<'a> GasMixture<'a> {
     /// default volume might be 70L or 1000L, the volumes of a tank and canister respectively.
     /// ## Example
     /// ```rust
-    /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
+    /// use libatmos::atmospherics::gases::GasMixture;
     /// let mix = GasMixture::from_empty(293.15, 1000);
     /// assert_eq!(mix.temperature, 293.15);
     /// ```
@@ -63,7 +63,7 @@ impl<'a> GasMixture<'a> {
     /// Errors if both vectors are different sizes.
     /// ## Example
     /// ```rust
-    /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
+    /// use libatmos::atmospherics::gases::GasMixture;
     /// use libatmos::constants::gases;
     /// let gas_vec = vec![&gases::BZ, &gases::MIASMA];
     /// let mole_vec = vec![50.0, 500.5];
@@ -101,7 +101,7 @@ impl<'a> GasMixture<'a> {
     /// Returns true if gases list is completely empty.
     /// ## Example
     /// ```rust
-    /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
+    /// use libatmos::atmospherics::gases::GasMixture;
     /// let mut mix = GasMixture::from_empty(100.0, 100.0); // well, duh, now its empty
     ///
     /// assert_eq!(mix.is_empty(), true);
@@ -114,7 +114,7 @@ impl<'a> GasMixture<'a> {
     /// Returns `true` if the gas already existed before calling `assert_gas()`.
     /// ## Example
     /// ```rust
-    /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
+    /// use libatmos::atmospherics::gases::GasMixture;
     /// use libatmos::constants::gases;
     /// // Mix contains just O2, at 69.42 mol
     /// let mut mix = GasMixture::from_vecs(vec![&gases::O2], vec![69.42], 273.15, 70);
@@ -139,7 +139,7 @@ impl<'a> GasMixture<'a> {
     /// Returns `Some(mole count)` of GasType if it exists, `None` otherwise.
     /// ## Example
     /// ```rust
-    /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
+    /// use libatmos::atmospherics::gases::GasMixture;
     /// use libatmos::constants::gases;
     /// // 50 mol O2, 50 mol N2, 100 K at 100 L
     /// let mut mix = GasMixture::from_vecs(vec![&gases::O2, &gases::N2], vec![50.0, 50.0], 100.0, 100.0)   ///
@@ -187,7 +187,7 @@ impl<'a> GasMixture<'a> {
     ///
     /// ## Example
     /// ```rust
-    /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
+    /// use libatmos::atmospherics::gases::GasMixture;
     /// use libatmos::constants::gases;
     /// // 50 mol O2, 50 mol N2, 100 K at 100 L
     /// let mut mix = GasMixture::from_vecs(vec![&gases::O2, &gases::N2], vec![50.0, 50.0], 100.0, 100.0);
@@ -206,7 +206,7 @@ impl<'a> GasMixture<'a> {
     ///
     /// ## Example
     /// ```rust
-    /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
+    /// use libatmos::atmospherics::gases::GasMixture;
     /// use libatmos::constants::gases;
     /// // 50 mol O2, 50 mol N2, 100 K at 100 L
     /// let mut mix = GasMixture::from_vecs(vec![&gases::O2, &gases::N2], vec![50.0, 50.0], 100.0, 100.0);
@@ -225,7 +225,14 @@ impl<'a> GasMixture<'a> {
     ///
     /// ## Example
     /// ```rust
-    /// use libatmos::atmospherics::gasmixtures::gasmixture::GasMixture;
+    /// use libatmos::atmospherics::gases::GasMixture;
+    /// use libatmos::constants::gases;
+    ///
+    /// let mut giver = GasMixture::from_vecs(vec![&gases::O2, &gases::N2], vec![50.0, 50.0], 100.0, 100.0);
+    /// let mut taker = giver.clone();
+    ///
+    /// taker.merge(giver).unwrap();
+    /// assert_eq!(taker.get_moles(&gases::O2), 100.0) // added up
     /// ```
     pub fn merge(&mut self, giver: GasMixture<'a>) -> Result<(), AtmosError> {
         if self.is_empty() || giver.is_empty() {
@@ -240,6 +247,7 @@ impl<'a> GasMixture<'a> {
             self.temperature = (giver.temperature * giver_heatcap + self.temperature * self_heatcap) / combined_heatcap;
         }
 
+        info!("Merging gas mixture taker {} with giver {}", self, giver);
         for (gastype, moles) in giver.gases.iter() {
             self.assert_gas(gastype);
             self.change_moles(gastype, self.get_moles(gastype).unwrap() + moles).unwrap();
@@ -248,7 +256,7 @@ impl<'a> GasMixture<'a> {
         Ok(())
     }
 
-    /// Removes a quantity of gas in `mol` from the gas mixture.
+    /// Removes a quantity of gas in `mol`s from the gas mixture.
     ///
     /// ## Example
     pub fn remove(&mut self, mut amount: f64) -> Result<GasMixture, AtmosError> {
