@@ -117,7 +117,7 @@ impl<'a> GasMixture<'a> {
     /// use libatmos::atmospherics::gases::GasMixture;
     /// use libatmos::constants::gases;
     /// // Mix contains just O2, at 69.42 mol
-    /// let mut mix = GasMixture::from_vecs(vec![&gases::O2], vec![69.42], 273.15, 70);
+    /// let mut mix = GasMixture::from_vecs(vec![&gases::O2], vec![69.42], 273.15, 70).unwrap();
     /// assert_eq!(mix.gas_exists(&gases::N2), false); // Doesn't exist in mix yet
     ///
     /// mix.assert_gas(&gases::N2);

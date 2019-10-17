@@ -11,5 +11,5 @@ fern = "0.5.8"
 chrono = "0.4.7"
 
 [lib]
-doctest = false
+doctest = true
 

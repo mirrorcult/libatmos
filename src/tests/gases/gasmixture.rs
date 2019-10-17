@@ -26,7 +26,11 @@ fn is_empty() {
 
 #[test]
 fn assert_gas() {
-
+    // Mix contains just O2, at 69.42 mol
+    let mut mix = GasMixture::from_vecs(vec![&gases::O2], vec![69.42], 273.15, 70).unwrap();
+    assert_eq!(mix.gas_exists(&gases::N2), false); // Doesn't exist in mix  
+    mix.assert_gas(&gases::N2);
+    assert_eq!(mix.gas_exists(&gases::N2), false); // Even though we asserted, its still only at 0 mols so gas_exists fails
 }
 
 #[test]
